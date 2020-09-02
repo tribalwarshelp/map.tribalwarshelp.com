@@ -1,12 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import { debounce } from 'lodash';
 import requestCreator from '../../libs/requestCreator';
-import { SERVER_QUERY } from './constants';
+import { URI } from '../../config/mapService';
+import { SERVER_QUERY, TRIBES_QUERY, PLAYERS_QUERY } from './constants';
+
+const isCheckboxEvent = (e) => e.target.type === 'checkbox';
 
 export default () => {
+  const [settings, setSettings] = useState({
+    showBarbarian: false,
+    largerMarkers: false,
+    markersOnly: false,
+    centerX: 500,
+    centerY: 500,
+    scale: 1,
+    showGrid: true,
+    showContinentNumbers: true,
+    backgroundColor: '#000000',
+  });
+  const [tribeMarkers, setTribeMarkers] = useState([]);
+  const [playerMarkers, setPlayerMarkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [server, setServer] = useState(undefined);
   const [error, setError] = useState('');
+  const [mapURL, setMapURL] = useState('');
   const { key } = useParams();
 
   useEffect(() => {
@@ -38,9 +57,164 @@ export default () => {
       });
   }, [key]);
 
+  const handleSettingsChange = (e) => {
+    setSettings({
+      ...settings,
+      [e.target.name]: isCheckboxEvent(e) ? e.target.checked : e.target.value,
+    });
+  };
+
+  const getNewMarker = () => ({
+    id: uuidv4(),
+    item: undefined,
+    color: '#00000',
+  });
+
+  const handleAddTribeMarker = () => {
+    setTribeMarkers([...tribeMarkers, getNewMarker()]);
+  };
+
+  const createDeleteTribeMarkerHandler = (id) => () => {
+    setTribeMarkers(tribeMarkers.filter((marker) => marker.id !== id));
+  };
+
+  const createUpdateTribeMarkerHandler = (id) => (e, selectedItem) => {
+    setTribeMarkers(
+      tribeMarkers.map((marker) => {
+        if (marker.id !== id) return marker;
+        if (selectedItem) {
+          return {
+            ...marker,
+            item: selectedItem,
+          };
+        }
+        return {
+          ...marker,
+          [e.target.name]: isCheckboxEvent(e)
+            ? e.target.checked
+            : e.target.value,
+        };
+      })
+    );
+  };
+
+  const handleAddPlayerMarker = () => {
+    setPlayerMarkers([...playerMarkers, getNewMarker()]);
+  };
+
+  const createDeletePlayerMarkerHandler = (id) => () => {
+    setPlayerMarkers(playerMarkers.filter((marker) => marker.id !== id));
+  };
+
+  const createUpdatePlayerMarkerHandler = (id) => (e, selectedItem) => {
+    setPlayerMarkers(
+      playerMarkers.map((marker) => {
+        if (marker.id !== id) return marker;
+        if (selectedItem) {
+          return {
+            ...marker,
+            item: selectedItem,
+          };
+        }
+        return {
+          ...marker,
+          [e.target.name]: isCheckboxEvent(e)
+            ? e.target.checked
+            : e.target.value,
+        };
+      })
+    );
+  };
+
+  const searchPlayer = async (searchValue) => {
+    try {
+      const data = await requestCreator({
+        query: PLAYERS_QUERY,
+        variables: {
+          server: key,
+          filter: {
+            nameIEQ: '%' + searchValue + '%',
+            limit: 5,
+            exists: true,
+          },
+        },
+      });
+      return data.players?.items ?? [];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const searchTribe = async (searchValue) => {
+    try {
+      const data = await requestCreator({
+        query: TRIBES_QUERY,
+        variables: {
+          server: key,
+          filter: {
+            tagIEQ: '%' + searchValue + '%',
+            limit: 5,
+            exists: true,
+          },
+        },
+      });
+      return data.tribes?.items ?? [];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const encodeMarker = (marker) => {
+    return marker.item.id + ',' + encodeURIComponent(marker.color);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    let searchParams = '';
+    for (let key in settings) {
+      searchParams += key + '=' + encodeURIComponent(settings[key]) + '&';
+    }
+    playerMarkers.forEach((marker) => {
+      if (marker.item) {
+        searchParams += 'player=' + encodeMarker(marker) + '&';
+      }
+    });
+    tribeMarkers.forEach((marker) => {
+      if (marker.item) {
+        searchParams += 'tribe=' + encodeMarker(marker) + '&';
+      }
+    });
+
+    setMapURL(URI + '/' + key + '?' + searchParams);
+  };
+
+  const debouncedHandleSettingsChange = useCallback(
+    debounce(handleSettingsChange, 500),
+    [settings]
+  );
+
   return {
     loading,
     server,
     error,
+    handleSettingsChange,
+    settings,
+    tribeMarkers,
+    handleAddTribeMarker,
+    createUpdateTribeMarkerHandler,
+    createDeleteTribeMarkerHandler,
+    playerMarkers,
+    handleAddPlayerMarker,
+    createUpdatePlayerMarkerHandler,
+    createDeletePlayerMarkerHandler,
+    debouncedHandleSettingsChange: (e) => {
+      e.persist();
+      debouncedHandleSettingsChange(e);
+    },
+    searchTribe,
+    searchPlayer,
+    handleSubmit,
+    mapURL,
   };
 };

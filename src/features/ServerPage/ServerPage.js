@@ -1,5 +1,7 @@
 import React from 'react';
+import { isObject } from 'lodash';
 import usePage from './usePage';
+import { formatDate } from './utils';
 
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -13,6 +15,8 @@ import AppLayout from '../../common/AppLayout/AppLayout';
 import LinkToIndexPage from './components/LinkToIndexPage';
 import Checkbox from './components/Checkbox';
 import Spinner from './components/Spinner';
+import MarkerField from './components/MarkerField';
+import Map from './components/Map';
 
 const useStyles = makeStyles((theme) => ({
   formGroup: {
@@ -24,21 +28,48 @@ const useStyles = makeStyles((theme) => ({
 
 function ServerPage() {
   const classes = useStyles();
-  const { loading, server, error } = usePage();
+  const {
+    loading,
+    server,
+    error,
+    handleSettingsChange,
+    settings,
+    debouncedHandleSettingsChange,
+    handleAddPlayerMarker,
+    handleAddTribeMarker,
+    createDeletePlayerMarkerHandler,
+    createDeleteTribeMarkerHandler,
+    createUpdatePlayerMarkerHandler,
+    createUpdateTribeMarkerHandler,
+    playerMarkers,
+    searchTribe,
+    searchPlayer,
+    tribeMarkers,
+    handleSubmit,
+    mapURL,
+  } = usePage();
+
+  const tribeGetOptionLabel = (tribe) => (isObject(tribe) ? tribe.tag : '');
+  const tribeGetOptionSelected = (option, value) =>
+    isObject(option) && isObject(value) ? option.tag === value.tag : false;
+  const playerGetOptionLabel = (player) =>
+    isObject(player) ? player.name : '';
+  const playerGetOptionSelected = (option, value) =>
+    isObject(option) && isObject(value) ? option.name === value.name : false;
 
   return (
     <AppLayout>
       {loading && <Spinner color="secondary" size={'150px'} />}
       {!loading && error && (
-        <Typography variant="h2">
+        <Typography variant="h2" align="center">
           <LinkToIndexPage>{error}</LinkToIndexPage>
         </Typography>
       )}
       {!loading && server && (
         <Container>
-          <form>
+          <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <Typography
                   variant="h4"
                   component="h3"
@@ -49,16 +80,9 @@ function ServerPage() {
                 </Typography>
                 <Typography>
                   Data last updated at{' '}
-                  {new Date(server.dataUpdatedAt).toLocaleDateString(
-                    server.langVersion.tag,
-                    {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                    }
+                  {formatDate(
+                    new Date(server.dataUpdatedAt),
+                    server.langVersion.tag
                   )}
                 </Typography>
                 <Typography>
@@ -77,7 +101,7 @@ function ServerPage() {
                   <LinkToIndexPage>Go back to server selection</LinkToIndexPage>
                 </Typography>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <Typography
                   variant="h4"
                   component="h3"
@@ -90,7 +114,9 @@ function ServerPage() {
                   <TextField
                     label="Zoom level"
                     type="number"
-                    defaultValue="1"
+                    name="scale"
+                    value={settings.scale}
+                    onChange={handleSettingsChange}
                     fullWidth
                     inputProps={{
                       min: 1,
@@ -101,7 +127,9 @@ function ServerPage() {
                   <TextField
                     label="Center X"
                     type="number"
-                    defaultValue="500"
+                    name="centerX"
+                    value={settings.centerX}
+                    onChange={handleSettingsChange}
                     fullWidth
                     inputProps={{
                       min: 0,
@@ -112,7 +140,9 @@ function ServerPage() {
                   <TextField
                     label="Center Y"
                     type="number"
-                    defaultValue="500"
+                    name="centerY"
+                    value={settings.centerY}
+                    onChange={handleSettingsChange}
                     fullWidth
                     inputProps={{
                       min: 0,
@@ -122,18 +152,44 @@ function ServerPage() {
                   />
                   <TextField
                     label="Background color"
-                    defaultValue="#000"
+                    name="backgroundColor"
+                    onChange={debouncedHandleSettingsChange}
                     fullWidth
                     type="color"
                   />
-                  <Checkbox label="Markers only" />
-                  <Checkbox label="Show barbarians" />
-                  <Checkbox label="Larger markers" />
-                  <Checkbox label="Continent grid" />
-                  <Checkbox label="Continent numbers" />
+                  <Checkbox
+                    name="markersOnly"
+                    checked={settings.markersOnly}
+                    onChange={handleSettingsChange}
+                    label="Markers only"
+                  />
+                  <Checkbox
+                    label="Show barbarian villages"
+                    name="showBarbarian"
+                    checked={settings.showBarbarian}
+                    onChange={handleSettingsChange}
+                  />
+                  <Checkbox
+                    label="Larger markers"
+                    name="largerMarkers"
+                    checked={settings.largerMarkers}
+                    onChange={handleSettingsChange}
+                  />
+                  <Checkbox
+                    label="Continent grid"
+                    name="showGrid"
+                    checked={settings.showGrid}
+                    onChange={handleSettingsChange}
+                  />
+                  <Checkbox
+                    label="Continent numbers"
+                    name="showContinentNumbers"
+                    checked={settings.showContinentNumbers}
+                    onChange={handleSettingsChange}
+                  />
                 </div>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <Typography
                   variant="h4"
                   component="h3"
@@ -143,12 +199,30 @@ function ServerPage() {
                   Tribe markers
                 </Typography>
                 <div className={classes.formGroup}>
-                  <Button variant="contained" fullWidth>
+                  {tribeMarkers.map((marker) => {
+                    return (
+                      <MarkerField
+                        key={marker.id}
+                        onDelete={createDeleteTribeMarkerHandler(marker.id)}
+                        onChange={createUpdateTribeMarkerHandler(marker.id)}
+                        loadSuggestions={searchTribe}
+                        getOptionLabel={tribeGetOptionLabel}
+                        getOptionSelected={tribeGetOptionSelected}
+                      />
+                    );
+                  })}
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    color="secondary"
+                    onClick={handleAddTribeMarker}
+                    disabled={tribeMarkers.length >= 100}
+                  >
                     Add marker
                   </Button>
                 </div>
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={12} sm={6} lg={3}>
                 <Typography
                   variant="h4"
                   component="h3"
@@ -158,20 +232,44 @@ function ServerPage() {
                   Player markers
                 </Typography>
                 <div className={classes.formGroup}>
-                  <Button variant="contained" fullWidth>
+                  {playerMarkers.map((marker) => {
+                    return (
+                      <MarkerField
+                        key={marker.id}
+                        onDelete={createDeletePlayerMarkerHandler(marker.id)}
+                        onChange={createUpdatePlayerMarkerHandler(marker.id)}
+                        loadSuggestions={searchPlayer}
+                        getOptionLabel={playerGetOptionLabel}
+                        getOptionSelected={playerGetOptionSelected}
+                      />
+                    );
+                  })}
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    color="secondary"
+                    onClick={handleAddPlayerMarker}
+                    disabled={playerMarkers.length >= 100}
+                  >
                     Add marker
                   </Button>
                 </div>
               </Grid>
               <Grid item xs={12}>
                 <Typography align="center" component="div">
-                  <Button size="large" color="secondary" variant="contained">
+                  <Button
+                    type="submit"
+                    size="large"
+                    color="secondary"
+                    variant="contained"
+                  >
                     Generate new map
                   </Button>
                 </Typography>
               </Grid>
             </Grid>
           </form>
+          {mapURL && <Map src={mapURL} alt={server.key} />}
         </Container>
       )}
     </AppLayout>
