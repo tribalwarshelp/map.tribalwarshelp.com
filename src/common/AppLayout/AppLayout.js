@@ -19,7 +19,7 @@ function AppLayout({ children }) {
         </Typography>
         <Typography variant="h1">TWHelp</Typography>
       </Box>
-      <main>{children}</main>
+      <main style={{ width: '100%' }}>{children}</main>
       <Box marginY={3} component="footer" textAlign="center">
         <Typography>© {new Date().getFullYear()} Dawid Wysokiński</Typography>
       </Box>

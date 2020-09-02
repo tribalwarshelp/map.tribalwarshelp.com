@@ -14,7 +14,8 @@ import AppLayout from '../../common/AppLayout/AppLayout';
 
 const useStyles = makeStyles((theme) => ({
   form: {
-    minWidth: 300,
+    maxWidth: 300,
+    margin: 'auto',
     '& > *:not(:last-child)': {
       marginBottom: theme.spacing(2),
     },
