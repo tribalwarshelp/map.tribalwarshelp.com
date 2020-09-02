@@ -1,22 +1,30 @@
 import React from 'react';
 
-import { Typography, CssBaseline } from '@material-ui/core';
+import { Typography, CssBaseline, Box, Link } from '@material-ui/core';
 
 function AppLayout({ children }) {
   return (
-    <div>
-      <header>
-        <Typography variant="subtitle2">tribalwarshelp.com</Typography>
-        <Typography variant="h1">TWHelp</Typography>
-      </header>
-      <main>{children}</main>
-      <footer>
-        <Typography variant="body2">
-          © {new Date().getFullYear()} Dawid Wysokiński
+    <Box
+      display="flex"
+      minHeight="100vh"
+      alignItems="center"
+      justifyContent="center"
+      flexDirection="column"
+    >
+      <Box marginY={3} component="header" textAlign="center">
+        <Typography variant="subtitle2">
+          <Link color="secondary" href="https://tribalwarshelp.com/">
+            tribalwarshelp.com
+          </Link>
         </Typography>
-      </footer>
+        <Typography variant="h1">TWHelp</Typography>
+      </Box>
+      <main>{children}</main>
+      <Box marginY={3} component="footer" textAlign="center">
+        <Typography>© {new Date().getFullYear()} Dawid Wysokiński</Typography>
+      </Box>
       <CssBaseline />
-    </div>
+    </Box>
   );
 }
 
