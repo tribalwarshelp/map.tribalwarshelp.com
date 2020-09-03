@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Link, Typography } from '@material-ui/core';
@@ -34,5 +35,14 @@ function Map({ src, alt }) {
     </div>
   );
 }
+
+Map.propTypes = {
+  src: PropTypes.string.isRequired,
+  alt: PropTypes.string,
+};
+
+Map.defaultProps = {
+  src: '',
+};
 
 export default memo(Map);
