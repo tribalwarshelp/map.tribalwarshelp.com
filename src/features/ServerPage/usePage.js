@@ -67,22 +67,14 @@ export default () => {
   const getNewMarker = () => ({
     id: uuidv4(),
     item: undefined,
-    color: '#00000',
+    color: '#000000',
   });
 
-  const handleAddTribeMarker = () => {
-    setTribeMarkers([...tribeMarkers, getNewMarker()]);
-  };
-
-  const createDeleteTribeMarkerHandler = (id) => () => {
-    setTribeMarkers(tribeMarkers.filter((marker) => marker.id !== id));
-  };
-
-  const createUpdateTribeMarkerHandler = (id) => (e, selectedItem) => {
-    setTribeMarkers(
-      tribeMarkers.map((marker) => {
+  const updateMarker = ({ e, selectedItem, id, markers, setMarkers }) => {
+    setMarkers(
+      markers.map((marker) => {
         if (marker.id !== id) return marker;
-        if (selectedItem) {
+        if (selectedItem || selectedItem === null) {
           return {
             ...marker,
             item: selectedItem,
@@ -96,6 +88,25 @@ export default () => {
         };
       })
     );
+  };
+
+  const handleAddTribeMarker = () => {
+    setTribeMarkers([...tribeMarkers, getNewMarker()]);
+  };
+
+  const createDeleteTribeMarkerHandler = (id) => () => {
+    setTribeMarkers(tribeMarkers.filter((marker) => marker.id !== id));
+  };
+
+  const createUpdateTribeMarkerHandler = (id) => (e, selectedItem) => {
+    console.log(selectedItem);
+    updateMarker({
+      e,
+      id,
+      selectedItem,
+      markers: tribeMarkers,
+      setMarkers: setTribeMarkers,
+    });
   };
 
   const handleAddPlayerMarker = () => {
@@ -107,37 +118,38 @@ export default () => {
   };
 
   const createUpdatePlayerMarkerHandler = (id) => (e, selectedItem) => {
-    setPlayerMarkers(
-      playerMarkers.map((marker) => {
-        if (marker.id !== id) return marker;
-        if (selectedItem) {
-          return {
-            ...marker,
-            item: selectedItem,
-          };
-        }
-        return {
-          ...marker,
-          [e.target.name]: isCheckboxEvent(e)
-            ? e.target.checked
-            : e.target.value,
-        };
-      })
-    );
+    updateMarker({
+      e,
+      id,
+      selectedItem,
+      markers: playerMarkers,
+      setMarkers: setPlayerMarkers,
+    });
+  };
+
+  const buildVariablesForSearchQuery = (searchValue = '', tribe = false) => {
+    const obj = {
+      server: key,
+      filter: {
+        limit: 5,
+        exists: true,
+      },
+    };
+
+    if (tribe) {
+      obj.filter.tagIEQ = '%' + searchValue + '%';
+    } else {
+      obj.filter.nameIEQ = '%' + searchValue + '%';
+    }
+
+    return obj;
   };
 
   const searchPlayer = async (searchValue) => {
     try {
       const data = await requestCreator({
         query: PLAYERS_QUERY,
-        variables: {
-          server: key,
-          filter: {
-            nameIEQ: '%' + searchValue + '%',
-            limit: 5,
-            exists: true,
-          },
-        },
+        variables: buildVariablesForSearchQuery(searchValue, false),
       });
       return data.players?.items ?? [];
     } catch (error) {
@@ -149,14 +161,7 @@ export default () => {
     try {
       const data = await requestCreator({
         query: TRIBES_QUERY,
-        variables: {
-          server: key,
-          filter: {
-            tagIEQ: '%' + searchValue + '%',
-            limit: 5,
-            exists: true,
-          },
-        },
+        variables: buildVariablesForSearchQuery(searchValue, true),
       });
       return data.tribes?.items ?? [];
     } catch (error) {
@@ -165,7 +170,7 @@ export default () => {
   };
 
   const encodeMarker = (marker) => {
-    return marker.item.id + ',' + encodeURIComponent(marker.color);
+    return encodeURIComponent(marker.item.id + ',' + marker.color);
   };
 
   const handleSubmit = (e) => {

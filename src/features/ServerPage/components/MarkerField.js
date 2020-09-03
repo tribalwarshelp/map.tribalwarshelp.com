@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
 
 import { TextField, Box, IconButton } from '@material-ui/core';
@@ -75,9 +76,15 @@ function MarkerField({
   );
 }
 
+MarkerField.propTypes = {
+  onDelete: PropTypes.func,
+  onChange: PropTypes.func,
+  loadSuggestions: PropTypes.func,
+  getOptionLabel: PropTypes.func,
+  getOptionSelected: PropTypes.func,
+};
+
 MarkerField.defaultProps = {
-  textProps: {},
-  colorProps: {},
   loadSuggestions: () => {},
   getOptionLabel: (s) => s,
 };
