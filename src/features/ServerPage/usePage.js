@@ -99,7 +99,6 @@ export default () => {
   };
 
   const createUpdateTribeMarkerHandler = (id) => (e, selectedItem) => {
-    console.log(selectedItem);
     updateMarker({
       e,
       id,
@@ -131,15 +130,17 @@ export default () => {
     const obj = {
       server: key,
       filter: {
-        limit: 5,
+        limit: 10,
         exists: true,
       },
     };
 
     if (tribe) {
-      obj.filter.tagIEQ = '%' + searchValue + '%';
+      obj.filter.tagIEQ = searchValue + '%';
+      obj.filter.sort = 'tag ASC';
     } else {
-      obj.filter.nameIEQ = '%' + searchValue + '%';
+      obj.filter.nameIEQ = searchValue + '%';
+      obj.filter.sort = 'name ASC';
     }
 
     return obj;

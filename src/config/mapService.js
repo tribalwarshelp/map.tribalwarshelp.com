@@ -1,2 +1,2 @@
 export const URI =
-  process.env.MAP_SERVICE_URI ?? 'http://api.tribalwarshelp.com/map';
+  process.env.MAP_SERVICE_URI ?? 'https://api.tribalwarshelp.com/map';
