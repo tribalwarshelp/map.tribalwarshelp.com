@@ -20,7 +20,7 @@ import Map from './components/Map';
 
 const useStyles = makeStyles((theme) => ({
   formGroup: {
-    '& > *:not(:last-child)': {
+    '& > *': {
       marginBottom: theme.spacing(1),
     },
   },
@@ -59,7 +59,7 @@ function ServerPage() {
 
   return (
     <AppLayout>
-      {loading && <Spinner color="secondary" size={'150px'} />}
+      {loading && <Spinner color="secondary" size="150px" />}
       {!loading && error && (
         <Typography variant="h2" align="center">
           <LinkToIndexPage>{error}</LinkToIndexPage>
@@ -269,7 +269,13 @@ function ServerPage() {
               </Grid>
             </Grid>
           </form>
-          {mapURL && <Map src={mapURL} alt={server.key} />}
+          {mapURL && (
+            <Map
+              src={mapURL}
+              alt={server.key}
+              maxWidth={server.config.coord.mapSize}
+            />
+          )}
         </Container>
       )}
     </AppLayout>
