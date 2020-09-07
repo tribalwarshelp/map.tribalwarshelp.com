@@ -19,6 +19,8 @@ export default () => {
     showGrid: true,
     showContinentNumbers: true,
     backgroundColor: '#000000',
+    gridLineColor: '#ffffff',
+    continentNumberColor: '#ffffff',
   });
   const [tribeMarkers, setTribeMarkers] = useState([]);
   const [playerMarkers, setPlayerMarkers] = useState([]);

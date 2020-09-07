@@ -157,6 +157,22 @@ function ServerPage() {
                     fullWidth
                     type="color"
                   />
+                  <TextField
+                    label="Grid line color"
+                    name="gridLineColor"
+                    onChange={debouncedHandleSettingsChange}
+                    defaultValue={settings.gridLineColor}
+                    fullWidth
+                    type="color"
+                  />
+                  <TextField
+                    label="Continent number color"
+                    name="continentNumberColor"
+                    onChange={debouncedHandleSettingsChange}
+                    defaultValue={settings.continentNumberColor}
+                    fullWidth
+                    type="color"
+                  />
                   <Checkbox
                     name="markersOnly"
                     checked={settings.markersOnly}
