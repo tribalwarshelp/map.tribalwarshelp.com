@@ -1,26 +1,26 @@
-import React from "react";
-import { isObject } from "lodash";
-import { formatDistanceToNow } from "date-fns";
-import usePage from "./usePage";
+import React from 'react';
+import { isObject } from 'lodash';
+import { formatDistanceToNow } from 'date-fns';
+import usePage from './usePage';
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
 import {
   Typography,
   Container,
   Button,
   Grid,
   TextField,
-} from "@material-ui/core";
-import AppLayout from "../../common/AppLayout/AppLayout";
-import LinkToIndexPage from "./components/LinkToIndexPage";
-import Checkbox from "./components/Checkbox";
-import Spinner from "./components/Spinner";
-import MarkerField from "./components/MarkerField";
-import Map from "./components/Map";
+} from '@material-ui/core';
+import AppLayout from '../../common/AppLayout/AppLayout';
+import LinkToIndexPage from './components/LinkToIndexPage';
+import Checkbox from './components/Checkbox';
+import Spinner from './components/Spinner';
+import MarkerField from './components/MarkerField';
+import Map from './components/Map';
 
 const useStyles = makeStyles((theme) => ({
   formGroup: {
-    "& > *": {
+    '& > *': {
       marginBottom: theme.spacing(1),
     },
   },
@@ -49,11 +49,11 @@ function ServerPage() {
     mapURL,
   } = usePage();
 
-  const tribeGetOptionLabel = (tribe) => (isObject(tribe) ? tribe.tag : "");
+  const tribeGetOptionLabel = (tribe) => (isObject(tribe) ? tribe.tag : '');
   const tribeGetOptionSelected = (option, value) =>
     isObject(option) && isObject(value) ? option.tag === value.tag : false;
   const playerGetOptionLabel = (player) =>
-    isObject(player) ? player.name : "";
+    isObject(player) ? player.name : '';
   const playerGetOptionSelected = (option, value) =>
     isObject(option) && isObject(value) ? option.name === value.name : false;
 
@@ -79,19 +79,19 @@ function ServerPage() {
                   {server.key}
                 </Typography>
                 <Typography>
-                  The server data was updated{" "}
+                  The server data was updated{' '}
                   {formatDistanceToNow(new Date(server.dataUpdatedAt))} ago.
                 </Typography>
                 <Typography>
-                  Number of players:{" "}
+                  Number of players:{' '}
                   <strong>{server.numberOfPlayers.toLocaleString()}</strong>
                 </Typography>
                 <Typography>
-                  Number of tribes:{" "}
+                  Number of tribes:{' '}
                   <strong>{server.numberOfTribes.toLocaleString()}</strong>
                 </Typography>
                 <Typography>
-                  Number of villages:{" "}
+                  Number of villages:{' '}
                   <strong>{server.numberOfVillages.toLocaleString()}</strong>
                 </Typography>
                 <Typography gutterBottom>
@@ -118,7 +118,7 @@ function ServerPage() {
                     inputProps={{
                       min: 1,
                       max: 5,
-                      step: ".01",
+                      step: '.01',
                     }}
                   />
                   <TextField
@@ -131,7 +131,7 @@ function ServerPage() {
                     inputProps={{
                       min: 0,
                       max: server.config.coord.mapSize,
-                      step: ".01",
+                      step: '.01',
                     }}
                   />
                   <TextField
@@ -144,7 +144,7 @@ function ServerPage() {
                     inputProps={{
                       min: 0,
                       max: server.config.coord.mapSize,
-                      step: ".01",
+                      step: '.01',
                     }}
                   />
                   <TextField
