@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { debounce } from 'lodash';
+import React, { useCallback, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { debounce } from "lodash";
 
-import { TextField, Box, IconButton } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
-import { Delete as DeleteIcon } from '@material-ui/icons';
+import { TextField, Box, IconButton } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
+import { Delete as DeleteIcon } from "@material-ui/icons";
 
 function MarkerField({
   onDelete,
@@ -13,7 +13,7 @@ function MarkerField({
   getOptionLabel,
   getOptionSelected,
 }) {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const debouncedOnChange = useCallback(debounce(onChange, 500), [onChange]);
@@ -31,7 +31,7 @@ function MarkerField({
 
   useEffect(() => {
     debouncedLoadSuggestions(searchValue);
-  }, [searchValue]);
+  }, [searchValue, debouncedLoadSuggestions]);
 
   return (
     <Box display="flex" justifyContent="space-between" alignItems="flex-end">
@@ -64,7 +64,7 @@ function MarkerField({
         }}
       />
       <TextField
-        style={{ width: '40%' }}
+        style={{ width: "40%" }}
         type="color"
         name="color"
         onChange={(e) => {
