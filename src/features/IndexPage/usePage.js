@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import requestCreator from '../../libs/requestCreator';
-import { LANG_VERSIONS_QUERY, SERVERS_QUERY } from './constants';
+import { VERSIONS_QUERY, SERVERS_QUERY } from './constants';
 
 export default () => {
-  const [langVersions, setLangVersions] = useState([]);
+  const [versions, setVersions] = useState([]);
   const [servers, setServers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -12,11 +12,11 @@ export default () => {
 
   useEffect(() => {
     requestCreator({
-      query: LANG_VERSIONS_QUERY,
+      query: VERSIONS_QUERY,
     })
-      .then(({ langVersions }) => {
-        if (langVersions && Array.isArray(langVersions.items)) {
-          setLangVersions(langVersions.items);
+      .then(({ versions }) => {
+        if (versions && Array.isArray(versions.items)) {
+          setVersions(versions.items);
         }
         setLoading(false);
       })
@@ -60,7 +60,7 @@ export default () => {
   };
 
   return {
-    langVersions,
+    versions,
     servers,
     error,
     loading,

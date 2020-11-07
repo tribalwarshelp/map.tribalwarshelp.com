@@ -1,9 +1,9 @@
-export const LANG_VERSIONS_QUERY = `
+export const VERSIONS_QUERY = `
     query {
-        langVersions(filter: { sort: "host ASC" }) {
+        versions(filter: { sort: "host ASC" }) {
             total
             items {
-                tag
+                code
                 host
             }
         }

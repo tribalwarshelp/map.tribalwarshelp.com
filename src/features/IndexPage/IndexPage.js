@@ -26,7 +26,7 @@ function IndexPage() {
   const classes = useStyles();
   const {
     loading,
-    langVersions,
+    versions,
     servers,
     error,
     selectedLangVersion,
@@ -53,9 +53,9 @@ function IndexPage() {
           {...defaultTextFieldProps}
         >
           <MenuItem value="">Select</MenuItem>
-          {langVersions.map((langVersion) => (
-            <MenuItem key={langVersion.tag} value={langVersion.tag}>
-              {langVersion.host}
+          {versions.map((version) => (
+            <MenuItem key={version.code} value={version.code}>
+              {version.host}
             </MenuItem>
           ))}
         </TextField>
